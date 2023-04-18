@@ -1,4 +1,4 @@
-module github.com/kick/shared
+module github.com/Trade-Arcade-Inc/shared
 
 go 1.19
 
