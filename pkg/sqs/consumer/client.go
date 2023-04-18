@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	sqstype "github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	"github.com/panjf2000/ants/v2"
 )
 
 const (
@@ -16,18 +16,26 @@ const (
 type Client struct {
 	sqsClient *sqs.Client
 	queue     string
+	pool      *ants.Pool
 }
 
-func NewClient(ctx context.Context, queue string) (*Client, error) {
+func NewClient(ctx context.Context, queue string, poolSize int) (*Client, error) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	pool, err := ants.NewPool(poolSize, ants.WithPreAlloc(true))
+	if err != nil {
+		return nil, err
+	}
+
 	sqsClient := sqs.NewFromConfig(cfg)
+
 	return &Client{
 		sqsClient: sqsClient,
 		queue:     queue,
+		pool:      pool,
 	}, nil
 }
 
@@ -35,6 +43,7 @@ func (c *Client) StartConsuming(ctx context.Context, handler func(msg string) er
 	for {
 		select {
 		case <-ctx.Done():
+			fmt.Printf("stopping consumer for queue %s\n", c.queue)
 			return nil
 		default:
 			resp, err := c.sqsClient.ReceiveMessage(ctx, &sqs.ReceiveMessageInput{
@@ -46,14 +55,12 @@ func (c *Client) StartConsuming(ctx context.Context, handler func(msg string) er
 			}
 
 			for _, msg := range resp.Messages {
-				// start a go routine to handle the message
-				go func(msg sqstype.Message) {
+				if err := c.pool.Submit(func() {
 					if err := handler(*msg.Body); err != nil {
 						fmt.Println("error handling message: ", err)
 						return
 					}
 
-					// delete the message from the queue
 					_, err := c.sqsClient.DeleteMessage(ctx, &sqs.DeleteMessageInput{
 						QueueUrl:      &c.queue,
 						ReceiptHandle: msg.ReceiptHandle,
@@ -61,7 +68,11 @@ func (c *Client) StartConsuming(ctx context.Context, handler func(msg string) er
 					if err != nil {
 						fmt.Println("error deleting message: ", err)
 					}
-				}(msg)
+
+				}); err != nil {
+					fmt.Println("error submitting message to pool: ", err)
+					return err
+				}
 			}
 		}
 	}
