@@ -1,2 +1,3 @@
-# shared-services
-Shared communication protocols between services
+# shared
+
+All the shared packages and protocols between the services
