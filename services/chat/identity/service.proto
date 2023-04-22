@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package kick.chat.identity;
+option go_package = "kick.com/chat/identity";
+
+service ChatIdentitySvc {
+    rpc FetchIdentityForChannelAndUser(GetIdentityForChannelAndUserRequest) returns (ChatIdentity);
+    rpc UpdateIdentityForChannelAndUser(UpdateIdentityForChannelAndUserRequest) returns (ChatIdentity);
+}
+
+message GetIdentityForChannelAndUserRequest {
+    string channel_id = 1; 
+    string user_id = 2;
+}
+
+message UpdateIdentityForChannelAndUserRequest {
+    string channel_id = 1; 
+    string user_id = 2;
+    string color = 3;
+    repeated Badge badges = 4;
+}
+
+message ChatIdentity {
+    string color = 1;
+    repeated Badge badges = 2;
+}
+
+message Badge {
+    string name = 1;
+}

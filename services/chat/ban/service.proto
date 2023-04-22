@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package kick.chat.ban;
+option go_package = "kick.com/chat/ban";
+
+service ChatBanSvc {
+    rpc FetchChatBanForUser(FetchChatBanForUserRequest) returns (ChatBan);
+    rpc FetchChatBansForUser(FetchChatBansForUserRequest) returns (ChatBans);
+    rpc FetchPlatformBanForUser(FetchPlatformBanForUserRequest) returns (PlatformBan);
+    rpc FetchPlatformBanSForUser(FetchPlatformBansForUserRequest) returns (PlatformBans);
+}
+
+message FetchChatBanForUserRequest {
+    string user_id = 1;
+    string chat_id = 2;
+}
+
+message FetchChatBansForUserRequest {
+    string user_id = 1;
+    string chat_id = 2;
+    string cursor = 3;
+}
+
+message FetchPlatformBanForUserRequest {
+    string user_id = 1;
+}
+
+message FetchPlatformBansForUserRequest {
+    string user_id = 1;
+    string cursor = 2;
+}
+
+message ChatBan {
+    string id = 1;
+    int64 banner_id = 2;
+    int64 banned_id = 3;
+    int64 channel_id = 4;
+    string reason = 5;
+    string type = 6;
+    bool permanent = 7;
+    int64 created_at = 8;
+    int64 expires_at = 9;
+}
+
+message ChatBans {
+    repeated ChatBan bans = 1;
+    string next_cursor = 2;
+}
+
+message PlatformBan {
+    string id = 1;
+    int64 banner_id = 2;
+    int64 banned_id = 3;
+    string reason = 5;
+    string type = 6;
+    bool permanent = 7;
+    int64 created_at = 8;
+    int64 expires_at = 9;
+}
+
+message PlatformBans {
+    repeated PlatformBan bans = 1;
+    string next_cursor = 2;
+}

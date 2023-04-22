@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package kick.chat.history;
+option go_package = "kick.com/chat/history";
+
+service ChatHistorySvc {
+    rpc FetchMessagesForChannel(FetchMessagesForChannelRequest) returns (ChatMessages);
+    rpc FetchMessagesForUser(FetchMessagesForUserRequest) returns (ChatMessages);
+    rpc FetchMessagesForChannelAndUser(FetchMessagesForChannelAndUserRequest) returns (ChatMessages);
+}
+
+message FetchMessagesForChannelRequest {
+    string channel_id = 1;
+    string cursor = 2;
+}
+
+message FetchMessagesForUserRequest {
+    string user_id = 1;
+    string cursor = 2;
+}
+
+message FetchMessagesForChannelAndUserRequest {
+    string channel_id = 1;
+    string user_id = 2;
+    string cursor = 3;
+}
+
+message ChatMessages {
+    repeated Message messages = 1;
+    string next_cursor = 2;
+}
+
+message Message {
+    string id = 1;
+    string channel_id = 2;
+    string user_id = 3;
+    string content = 4;
+    string type = 5;
+    string metadata = 6;
+    string created_at = 7;
+}
