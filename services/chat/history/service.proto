@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package kick.chat.history;
-option go_package = "kick.com/chat/history";
+option go_package = "chat/history";
 
 service ChatHistorySvc {
     rpc FetchMessagesForChannel(FetchMessagesForChannelRequest) returns (ChatMessages);
