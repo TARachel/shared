@@ -39,7 +39,7 @@ func NewClient(ctx context.Context, queue string, poolSize int) (*Client, error)
 	}, nil
 }
 
-func (c *Client) StartConsuming(ctx context.Context, handler func(msg string) error) error {
+func (c *Client) StartConsuming(ctx context.Context, handler func(ctx context.Context, msg string) error) error {
 	for {
 		select {
 		case <-ctx.Done():
@@ -56,7 +56,8 @@ func (c *Client) StartConsuming(ctx context.Context, handler func(msg string) er
 
 			for _, msg := range resp.Messages {
 				if err := c.pool.Submit(func() {
-					if err := handler(*msg.Body); err != nil {
+					queryCtx := context.Background()
+					if err := handler(queryCtx, *msg.Body); err != nil {
 						fmt.Println("error handling message: ", err)
 						return
 					}

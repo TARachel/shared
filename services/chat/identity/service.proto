@@ -4,11 +4,11 @@ package kick.chat.identity;
 option go_package = "chat/identity";
 
 service ChatIdentitySvc {
-    rpc FetchIdentityForChannelAndUser(GetIdentityForChannelAndUserRequest) returns (ChatIdentity);
+    rpc FetchIdentityForChannelAndUser(FetchIdentityForChannelAndUserRequest) returns (ChatIdentity);
     rpc UpdateIdentityForChannelAndUser(UpdateIdentityForChannelAndUserRequest) returns (ChatIdentity);
 }
 
-message GetIdentityForChannelAndUserRequest {
+message FetchIdentityForChannelAndUserRequest {
     string channel_id = 1; 
     string user_id = 2;
 }
